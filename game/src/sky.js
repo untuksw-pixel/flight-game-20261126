@@ -41,7 +41,7 @@ export function buildSky(scene) {
 /** A field of soft cloud puffs that drift slowly with the wind. */
 export function buildClouds(scene, count) {
   const group = new THREE.Group();
-  const material = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x5a6068, transparent: true, opacity: 0.92 });
+  const material = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x7d838c, transparent: true, opacity: 0.95 });
   const random = (seed => () => {
     seed = (seed * 1664525 + 1013904223) >>> 0;
     return seed / 4294967296;

@@ -82,8 +82,16 @@ export function drawHud(ctx, view, width, height) {
   readoutBox(ctx, 16, 150, 'HEADING', `${String(headingDeg).padStart(3, '0')}°`);
   compassStrip(ctx, state, width);
 
-  // Mission, score and clock, top right.
+  // Mission, score and clock, top right, on a dark backing so the words
+  // stay readable against a bright sky.
   ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(width - 346, 8, 338, 86, 8);
+  ctx.fillStyle = 'rgba(13, 19, 26, 0.66)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(200, 162, 74, 0.55)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
   ctx.textAlign = 'right';
   ctx.fillStyle = '#f6d67c';
   ctx.font = 'bold 19px Georgia, serif';

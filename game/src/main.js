@@ -67,6 +67,7 @@ function setView(view) {
   game.view = view;
   aircraft.canopy.visible = view !== 'cockpit';
   aircraft.cockpitDeck.visible = view === 'cockpit';
+  aircraft.setCockpitView(view === 'cockpit');
 }
 
 function startMission(index) {

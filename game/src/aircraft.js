@@ -35,6 +35,7 @@ export function buildAircraft() {
   spinner.position.z = -0.4;
   propeller.add(spinner);
   const bladeMaterial = new THREE.MeshPhongMaterial({ color: 0x2c3034, shininess: 60, transparent: true });
+  const blades = [];
   for (const flip of [0, Math.PI]) {
     const blade = new THREE.Mesh(new THREE.BoxGeometry(0.26, 2.3, 0.08), bladeMaterial);
     const holder = new THREE.Group();
@@ -42,6 +43,7 @@ export function buildAircraft() {
     holder.rotation.z = flip;
     blade.position.set(0, 1.28, 0);
     propeller.add(holder);
+    blades.push(blade);
   }
   // The blur disc the spinning prop paints in the air; it fades in with rpm
   // so a running engine reads as a disc, not two frozen blades.
@@ -141,6 +143,12 @@ export function buildAircraft() {
   cockpitDeck.visible = false;
   plane.add(cockpitDeck);
 
+  // In cockpit view the camera sits just behind the propeller arc: solid
+  // blades would slash across the windscreen and the blur disc would fill
+  // it, so the cockpit shows only a whisper of the disc, the way a pilot's
+  // eye tunes the spinning prop out.
+  let cockpitView = false;
+
   return {
     group: plane,
     propeller,
@@ -148,6 +156,11 @@ export function buildAircraft() {
     bladeMaterial,
     canopy,
     cockpitDeck,
+    /** Tell the plane whether the pilot's own view is the one being drawn. */
+    setCockpitView(on) {
+      cockpitView = on;
+      for (const blade of blades) blade.visible = !on;
+    },
     /** Pose the plane from the flight state; spin the prop; work the surfaces. */
     update(state, input, dt, time) {
       plane.position.copy(state.position);
@@ -157,7 +170,8 @@ export function buildAircraft() {
       plane.rotation.z = -state.roll;
       const rpm = state.engineDead ? 0 : 4 + state.throttle * 42 + state.speed * 0.5;
       propeller.rotation.z += rpm * dt * (state.crashed ? 0 : 1);
-      propDisc.material.opacity = state.crashed || state.engineDead ? 0 : Math.min(0.13, rpm * 0.004);
+      const discOpacity = state.crashed || state.engineDead ? 0 : Math.min(0.09, rpm * 0.004);
+      propDisc.material.opacity = cockpitView ? Math.min(0.045, discOpacity) : discOpacity;
       // Past windmilling speed the blades vanish into the disc entirely.
       bladeMaterial.opacity = state.crashed ? 1 : Math.max(0, Math.min(1, (26 - rpm) / 14));
       for (const { pivot, side } of ailerons) pivot.rotation.x = -input.roll * 0.5 * side;

@@ -43,31 +43,36 @@ export function stageShot(game, name) {
   if (name === 'rings') {
     game.startMission(0);
     // Take off and climb out toward the first harbour ring, then settle onto
-    // the course for it with the ring ahead and the island falling away.
+    // the course for it, close enough that the ring ahead reads large in
+    // the frame with the island falling away below.
     flySteps(game, 60 * 7, takeoffRoll);
     const ring = { x: 150, y: 140, z: -1150 };
-    flySteps(game, 60 * 17, (g) => steerToward(g, ring, 47));
+    flySteps(game, 60 * 21, (g) => steerToward(g, ring, 47));
     game.setView('chase');
     return 'airborne on the ring course, first ring ahead';
   }
   if (name === 'cockpit') {
     game.startMission(0);
-    // Staged on final approach: airborne over the bay, lined up on Kestrel
-    // Field, and flown down the approach by the autopilot for a few seconds.
-    game.spawnAirborne({ x: 150, y: 64, z: 760 }, 0, 33);
+    // Staged on short final: airborne over the bay, lined up on Kestrel
+    // Field a few hundred metres out, flown down the approach by the
+    // autopilot at approach speed with the throttle alive.
+    game.spawnAirborne({ x: 150, y: 58, z: 470 }, 0, 33);
     game.setView('cockpit');
     const threshold = { x: 150, y: 22, z: -330 };
-    flySteps(game, 60 * 4.5, (g) => steerToward(g, threshold, 31));
+    flySteps(game, 60 * 7, (g) => steerToward(g, threshold, 35));
+    // The descent bleeds the autopilot's throttle to idle; a flown final
+    // carries a little power, so stage the throttle where a pilot holds it.
+    game.state.throttle = 0.35;
     return 'cockpit view on final approach, runway ahead';
   }
   if (name === 'approach') {
     game.startMission(1);
-    // Staged mid-crossing to the east isle: the guide ring ahead, the drop
-    // island beyond it, the sea below.
-    game.spawnAirborne({ x: 1080, y: 150, z: -760 }, 1.15, 47);
+    // Staged mid-crossing to the east isle: the orange next ring ahead,
+    // the drop island beyond it, the sea below.
+    game.spawnAirborne({ x: 560, y: 138, z: -700 }, 1.35, 47);
     game.setView('chase');
-    const ring = { x: 1520, y: 125, z: -920 };
-    flySteps(game, 60 * 3.5, (g) => steerToward(g, ring, 47));
+    const ring = { x: 900, y: 135, z: -720 };
+    flySteps(game, 60 * 3, (g) => steerToward(g, ring, 47));
     return 'crossing to East Isle, guide ring ahead';
   }
   // Default: the takeoff — full throttle down the home runway, caught at
